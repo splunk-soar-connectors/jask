@@ -1,7 +1,7 @@
 {
     "appid": "6096a528-d8e1-41cc-94ef-53796b6c74ba",
     "name": "JASK",
-    "description": "JASK ASOC Platform",
+    "description": "This app implements ingest action for fetching alerts on JASK ASOC Platform",
     "type": "siem",
     "product_vendor": "JASK",
     "logo": "logo_jask.svg",
