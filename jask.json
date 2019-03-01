@@ -21,24 +21,18 @@
             "description": "API Username",
             "data_type": "string",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 0
         },
         "api_key": {
             "description": "User API Key",
             "data_type": "password",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 1
         },
         "login_url": {
             "description": "Login URL",
             "data_type": "string",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 2
         }
     },
@@ -47,7 +41,6 @@
             "action": "test connectivity",
             "identifier": "test_connectivity",
             "description": "Validate the asset configuration for connectivity using supplied configuration",
-            "verbose": "",
             "type": "test",
             "read_only": true,
             "parameters": {},
@@ -58,7 +51,6 @@
             "action": "on poll",
             "identifier": "on_poll",
             "description": "Callback action for the on_poll ingest functionality",
-            "verbose": "",
             "type": "ingest",
             "read_only": true,
             "parameters": {
@@ -67,9 +59,6 @@
                     "data_type": "numeric",
                     "required": false,
                     "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 0
                 },
                 "end_time": {
@@ -77,9 +66,6 @@
                     "data_type": "numeric",
                     "required": false,
                     "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 1
                 }
             },
