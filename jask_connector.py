@@ -35,46 +35,6 @@ class JaskConnector(BaseConnector):
         # modify this as you deem fit.
         self._base_url = None
 
-    def _load_state(self):
-
-        dirpath = os.path.split(os.path.abspath(__file__))[0]
-        asset_id = self.get_asset_id()
-        state_file_path = "{0}/{1}_state.json".format(dirpath, asset_id)
-
-        state = {}
-
-        try:
-            with open(state_file_path, 'r') as f:
-                in_json = f.read()
-                state = json.loads(in_json)
-        except Exception as e:
-            self.debug_print("In _load_state: Exception: {0}".format(str(e)))
-            pass
-
-        self.debug_print("Loaded state: ", state)
-
-        return state
-
-    def _save_state(self, state):
-
-        self.debug_print("Saving state: ", state)
-
-        dirpath = os.path.split(os.path.abspath(__file__))[0]
-        asset_id = self.get_asset_id()
-        state_file_path = "{0}/{1}_state.json".format(dirpath, asset_id)
-
-        if (not state_file_path):
-            self.debug_print("_state_file_path is None in _save_state")
-            return phantom.APP_SUCCESS
-
-        try:
-            with open(state_file_path, 'w+') as f:
-                f.write(json.dumps(state))
-        except:
-            pass
-
-        return phantom.APP_SUCCESS
-
     def _process_empty_reponse(self, response, action_result):
 
         if response.status_code == 200:
@@ -180,7 +140,7 @@ class JaskConnector(BaseConnector):
         return self._process_response(r, action_result)
 
     def _handle_test_connectivity(self, param):
-        self.debug_print("JASK app - in test connectivity")
+        self.save_progress("Test connectivity initiated")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
@@ -196,9 +156,6 @@ class JaskConnector(BaseConnector):
 
         self.save_progress("Connecting to endpoint")
         ret_val, response = self._make_rest_call('/api/search/signals', action_result, params=jask_test_params, headers=None)
-
-        # make rest call
-        # ret_val, response = self._make_rest_call('/endpoint', action_result, params=None, headers=None)
 
         if (phantom.is_fail(ret_val)):
             # the call to the 3rd party device or service failed, action result should contain all the error details
@@ -253,7 +210,6 @@ class JaskConnector(BaseConnector):
                 else:
                     artifact_json['run_automation'] = True
 
-                self.debug_print(artifact_json)
                 ret_val, message, resp = self.save_artifact(artifact_json)
 
         except KeyError:
@@ -267,15 +223,9 @@ class JaskConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        if (hasattr(self, 'load_state')):
-            state = self.load_state()
-        else:
-            state = self._load_state()
-
         # Get time from last poll, save now as time for this poll
-        last_time = str(state.get('last_time', 0))
-        state['last_time'] = str(int(round(time.time() * 1000)))
-        self.debug_print(last_time)
+        last_time = str(self._state.get('last_time', 0))
+        self._state['last_time'] = str(int(round(time.time() * 1000)))
 
         # Set the last and start times for the API
         jask_query = str('* AND timestamp: [' + last_time + ' TO *]')
@@ -286,8 +236,7 @@ class JaskConnector(BaseConnector):
                               'offset': '0',
                               'limit': 100 }
 
-        self.debug_print(jask_alert_params)
-        self._save_state(state)
+        self.save_state(self._state)
 
         # make rest call
         ret_val, response = self._make_rest_call('/api/search/alerts', action_result, params=jask_alert_params, headers=None)
@@ -316,11 +265,9 @@ class JaskConnector(BaseConnector):
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
         config = self.get_config()
-        self.debug_print(config)
         self._api_user = config['api_user']
         self._api_key = config['api_key']
         self._base_url = config['login_url']
-        self.debug_print("JASK app - in test connectivity")
 
         # Get the action that we are supposed to execute for this App Run
         action_id = self.get_action_identifier()
@@ -357,7 +304,7 @@ class JaskConnector(BaseConnector):
     def finalize(self):
 
         # Save the state, this data is saved accross actions and app upgrades
-        self._save_state(self._state)
+        self.save_state(self._state)
         return phantom.APP_SUCCESS
 
 
