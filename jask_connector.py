@@ -9,7 +9,6 @@ from phantom.action_result import ActionResult
 
 # Usage of the consts file is recommended
 # from jask_consts import *
-import os
 import requests
 import json
 import time
